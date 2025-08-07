@@ -11,6 +11,9 @@
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
         }
         
         h1 {
@@ -41,7 +44,11 @@
             text-align: center;
             min-width: 120px;
             user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            touch-action: none;
         }
         
         .draggable:hover {
@@ -78,6 +85,10 @@
             line-height: 1.3;
             position: relative;
             border: 1px solid #ccc;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
         
         .cell.drop-zone {
@@ -125,18 +136,37 @@
         }
         
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                margin: 0;
+                max-width: 100%;
+            }
+            
             .chart {
                 font-size: 12px;
+                max-width: 100%;
             }
             
             .cell {
                 padding: 15px;
                 min-height: 50px;
+                font-size: 13px;
             }
             
             .draggable {
                 min-width: 100px;
                 padding: 12px;
+                font-size: 14px;
+            }
+            
+            .drag-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .instructions {
+                font-size: 14px;
             }
         }
     </style>
@@ -158,7 +188,7 @@
     <div class="chart-container">
         <div class="chart" id="chart">
             <div class="cell" data-cell="A1">Is written by an academic expert</div>
-            <div class="cell" data-cell="B1">Its audience is the general public.</div>
+            <div class="cell" data-cell="B1">It's audience is the general public.</div>
             <div class="cell" data-cell="C1">Is written to entertain</div>
             <div class="cell" data-cell="A2">Is written by a journalist</div>
             <div class="cell" data-cell="B2">Peer-reviewed by other scholars</div>
@@ -185,26 +215,12 @@
         
         let draggedElement = null;
         
-        // Create new draggable elements
-        function createDraggable(type) {
-            const dragContainer = document.getElementById('dragContainer');
-            const newDraggable = document.createElement('div');
-            newDraggable.className = 'draggable';
-            newDraggable.draggable = true;
-            newDraggable.dataset.type = type;
-            newDraggable.textContent = type.charAt(0).toUpperCase() + type.slice(1);
-            
-            // Add event listeners
-            addDragListeners(newDraggable);
-            
-            dragContainer.appendChild(newDraggable);
-        }
-        
         // Add drag event listeners to an element
         function addDragListeners(element) {
             element.addEventListener('dragstart', function(e) {
                 draggedElement = this;
                 e.dataTransfer.effectAllowed = 'copy';
+                e.dataTransfer.setData('text/plain', this.dataset.type);
             });
         }
         
@@ -255,9 +271,7 @@
                             this.classList.add('incorrect');
                         }
                         
-                        // Create a new draggable element
-                        createDraggable(droppedType);
-                        
+                        // Show the original draggable element again
                         draggedElement = null;
                     }
                 });
